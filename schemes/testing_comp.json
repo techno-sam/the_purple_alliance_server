@@ -1,0 +1,32 @@
+[
+  {
+    "type": "text",
+    "label": "A cool label",
+    "padding": 8
+  },
+  {
+    "type": "text",
+    "label": "Another cool label"
+  },
+  {
+    "type": "text_field",
+    "label": "A cool form entry",
+    "key": "test"
+  },
+  {
+    "type": "dropdown",
+    "label": "Favorite farm animal",
+    "key": "test_drop",
+    "options": [
+      "A cow",
+      "A horse",
+      "A pig"
+    ],
+    "default": "A horse"
+  },
+  {
+    "type": "text",
+    "label": "A totally different label",
+    "padding": 20
+  }
+]

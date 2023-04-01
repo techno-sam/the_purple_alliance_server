@@ -1,0 +1,1 @@
+kill -HUP "$(cat /tmp/the_purple_alliance_server.pid)"
