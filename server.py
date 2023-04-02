@@ -118,7 +118,8 @@ def application(env, start_response):
                 start_response('200 OK', [('Content-Type', 'application/json')])
                 return [json.dumps({
                     "scheme_version": md5sum(str(scheme_data)),
-                    "competition": competition
+                    "competition": competition,
+                    "team": team,
                 }).encode()]
             elif path == "/data.json":
                 start_response('200 OK', [('Content-Type', 'application/json')])
