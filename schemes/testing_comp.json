@@ -28,5 +28,42 @@
     "type": "text",
     "label": "A totally different label",
     "padding": 20
+  },
+  {
+    "type": "star_rating",
+    "label": "This is an epic 5-star rating",
+    "padding": 10,
+    "key": "test_rating"
+  },
+  {
+    "type": "text",
+    "label": "This is a heading",
+    "padding": 50,
+    "style": "heading"
+  },
+  {
+    "type": "text_field",
+    "label": "Totally awesome dynamic entry",
+    "key": "test_dynamic"
+  },
+  {
+    "type": "text",
+    "label": "Labels all the way down.\nMore and more.\neven more.\nhow many lines?\n So many lines!",
+    "padding": 50
+  },
+  {
+    "type": "text",
+    "label": "Labels all the way down.\nMore and more.\neven more.\nhow many lines?\n So many lines!",
+    "padding": 50
+  },
+  {
+    "type": "text",
+    "label": "Labels all the way down.\nMore and more.\neven more.\nhow many lines?\n So many lines!",
+    "padding": 50
+  },
+  {
+    "type": "text",
+    "label": "Labels all the way down.\nMore and more.\neven more.\nhow many lines?\n So many lines!",
+    "padding": 50
   }
 ]

@@ -123,7 +123,7 @@ def application(env, start_response):
                 }).encode()]
             elif path == "/data.json":
                 start_response('200 OK', [('Content-Type', 'application/json')])
-                return [json.dumps(data_manager.to_json(net=True)).encode()]
+                return [json.dumps(data_manager.to_json(net=True, username=state)).encode()]
         elif method == "POST":
             if path == "/update":
                 request_body = env["wsgi.input"].read(request_body_size)
@@ -147,7 +147,7 @@ def application(env, start_response):
 def before_exit():
     print("Exit hook executing...")
     with open(os.path.join("saved_data", competition, "data.json"), "w") as f:
-        json.dump(data_manager.to_json(), f)
+        json.dump(data_manager.to_json(), f, indent=2)
 
 
 atexit.register(before_exit)

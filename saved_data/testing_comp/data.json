@@ -1,1 +1,41 @@
-{"1771": {"test": {"timestamp": 1680393061876, "value": "p edit"}, "test_drop": {"timestamp": 1680392966482, "value": "A cow"}}, "1772": {"test": {"timestamp": -1, "value": ""}, "test_drop": {"timestamp": -1, "value": "A horse"}}}
+{
+  "1771": {
+    "test": {
+      "timestamp": 1680393061876,
+      "value": "p edit"
+    },
+    "test_drop": {
+      "timestamp": 1680409509724,
+      "value": "A horse"
+    },
+    "test_rating": {
+      "timestamp": 1680461491166,
+      "values": {
+        "Sam Wagenaar": 5.0,
+        "hello": 2.0
+      }
+    },
+    "test_dynamic": {
+      "timestamp": 1680450727548,
+      "value": "this is so cool"
+    }
+  },
+  "1772": {
+    "test": {
+      "timestamp": -1,
+      "value": ""
+    },
+    "test_drop": {
+      "timestamp": -1,
+      "value": "A horse"
+    },
+    "test_rating": {
+      "timestamp": -1,
+      "values": {}
+    },
+    "test_dynamic": {
+      "timestamp": -1,
+      "value": ""
+    }
+  }
+}

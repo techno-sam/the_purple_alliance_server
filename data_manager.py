@@ -10,7 +10,7 @@ class DataValue:
         """Should only be used for loading from disk, updating from client should call update_from"""
         self.last_updated = data.get("timestamp", -1)
 
-    def to_json(self, net: bool = False) -> dict:
+    def to_json(self, net: bool = False, username: str = "") -> dict:
         """Can be used for saving to disk and sending to client"""
         return {"timestamp": self.last_updated}
 
@@ -39,7 +39,7 @@ class TextDataValue(DataValue):
         print("Loading text from json: ", data)
         self.value = data["value"]
 
-    def to_json(self, net: bool = False) -> dict:
+    def to_json(self, net: bool = False, username: str = "") -> dict:
         data = super().to_json(net)
         data["value"] = self.value
         return data
@@ -68,7 +68,7 @@ class DropdownDataValue(DataValue):
         if self.value not in self.options:
             self.value = self.default
 
-    def to_json(self, net: bool = False) -> dict:
+    def to_json(self, net: bool = False, username: str = "") -> dict:
         data = super().to_json(net)
         data["value"] = self.value
         return data
@@ -82,12 +82,43 @@ class DropdownDataValue(DataValue):
             self.value = data
 
 
+class StarRatingDataValue(DataValue):
+    def __init__(self, init_dict: dict[str, typing.Any]):
+        super().__init__(init_dict)
+        self.values: dict[str, float] = {}
+
+    average = property(lambda self: sum(self.values.values()) / len(self.values) if self.values else None)
+
+    def from_json(self, data: dict):
+        super().from_json(data)
+        self.values = data["values"]
+
+    def to_json(self, net: bool = False, username: str = "") -> dict:
+        data = super().to_json(net)
+        if net:
+            data["value"] = {
+                "personal_value": self.values.get(username, None),
+                "average_value": self.average
+            }
+        else:
+            data["values"] = self.values
+        return data
+
+    def reset(self):
+        super().reset()
+        self.values = {}
+
+    def _update_from(self, data: dict[str, float], username: str):
+        self.values[username] = max(0.0, min(data['personal_value'], 5.0))
+
+
 _clientSideOnlyTypes: list[str] = [
     "text",
 ]
 _dataValueTypes: dict[str, type[DataValue]] = {
     "text_field": TextDataValue,
     "dropdown": DropdownDataValue,
+    "star_rating": StarRatingDataValue,
 }
 
 
@@ -152,12 +183,12 @@ class DataManager:
             for key, value in team_data.items():
                 team.data[key].from_json(value)
 
-    def to_json(self, net: bool = False) -> dict[str, dict[str, dict]]:
+    def to_json(self, net: bool = False, username: str = "") -> dict[str, dict[str, dict]]:
         data = {}
         for number, team in self.teams.items():
             team_data = {}
             for key, value in team.data.items():
-                team_data[key] = value.to_json(net)
+                team_data[key] = value.to_json(net, username)
             data[str(number)] = team_data
         return data
 
