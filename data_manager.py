@@ -112,6 +112,34 @@ class StarRatingDataValue(DataValue):
         self.values[username] = max(0.0, min(data['personal_value'], 5.0))
 
 
+class CommentsDataValue(DataValue):
+    def __init__(self, init_dict: dict[str, typing.Any]):
+        super().__init__(init_dict)
+        self.comments: dict[str, str] = {}
+
+    def from_json(self, data: dict):
+        super().from_json(data)
+        self.comments = data["comments"]
+
+    def to_json(self, net: bool = False, username: str = "") -> dict:
+        data = super().to_json(net)
+        if net:
+            data["value"] = {
+                "personal_comment": self.comments.get(username, ""),
+                "other_comments": {name: comment for name, comment in self.comments.items() if name != username}
+            }
+        else:
+            data["comments"] = self.comments
+        return data
+
+    def reset(self):
+        super().reset()
+        self.comments = {}
+
+    def _update_from(self, data: dict[str, str], username: str):
+        self.comments[username] = data['personal_comment']
+
+
 _clientSideOnlyTypes: list[str] = [
     "text",
 ]
@@ -119,6 +147,7 @@ _dataValueTypes: dict[str, type[DataValue]] = {
     "text_field": TextDataValue,
     "dropdown": DropdownDataValue,
     "star_rating": StarRatingDataValue,
+    "comments": CommentsDataValue
 }
 
 

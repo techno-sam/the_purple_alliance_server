@@ -1,23 +1,31 @@
 {
   "1771": {
     "test": {
-      "timestamp": 1680393061876,
-      "value": "p edit"
+      "timestamp": 1680625075252,
+      "value": "p edit and sync 3.0.9"
     },
     "test_drop": {
-      "timestamp": 1680409509724,
-      "value": "A horse"
+      "timestamp": 1680628246909,
+      "value": "A cow"
     },
     "test_rating": {
-      "timestamp": 1680461491166,
+      "timestamp": 1680625993196,
       "values": {
         "Sam Wagenaar": 5.0,
-        "hello": 2.0
+        "hello": 2.0,
+        "Sam Wagenaar 2": 4.0
       }
     },
     "test_dynamic": {
-      "timestamp": 1680450727548,
-      "value": "this is so cool"
+      "timestamp": 1680624953387,
+      "value": "this is so cool yay"
+    },
+    "test_comments": {
+      "timestamp": 1680625738371,
+      "comments": {
+        "Sam Wagenaar": "this is a pretty coolthing. huh conment yayyyyyy. I can make this line really long, then it will cause problems! Nevermind, it wraps properly! Yay!",
+        "Sam Wagenaar 2": "this. is. a pretty cool system"
+      }
     }
   },
   "1772": {
@@ -36,6 +44,10 @@
     "test_dynamic": {
       "timestamp": -1,
       "value": ""
+    },
+    "test_comments": {
+      "timestamp": -1,
+      "comments": {}
     }
   }
 }

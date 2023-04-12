@@ -65,5 +65,11 @@
     "type": "text",
     "label": "Labels all the way down.\nMore and more.\neven more.\nhow many lines?\n So many lines!",
     "padding": 50
+  },
+  {
+    "type": "comments",
+    "key": "test_comments",
+    "label": "Opinions on the form",
+    "padding": 50
   }
 ]
