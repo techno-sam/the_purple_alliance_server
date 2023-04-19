@@ -5,6 +5,11 @@
     "padding": 8
   },
   {
+    "type": "photos",
+    "label": "Photos",
+    "padding": 10
+  },
+  {
     "type": "text",
     "label": "Another cool label"
   },

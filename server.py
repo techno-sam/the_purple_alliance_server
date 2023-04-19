@@ -1,3 +1,6 @@
+# pip3 install requests-toolbelt
+# in reference to images, hashes are actually v4 uuids
+from requests_toolbelt import MultipartDecoder
 import uwsgi  # noqa
 import atexit
 import base64
@@ -9,6 +12,7 @@ import json
 import _md5 as md5
 import wsgiref.headers
 import data_manager
+import re
 
 print("startup")
 
@@ -32,20 +36,25 @@ password: str = config["password"]
 competition: str = config["competition"]
 
 os.makedirs("schemes", exist_ok=True)
-os.makedirs(os.path.join("saved_data", competition), exist_ok=True)
+os.makedirs(os.path.join("saved_data", competition, "images"), exist_ok=True)
 
 with open(os.path.join("schemes", competition+".json")) as f:
     scheme_data = json.load(f)
 
 scheme = data_manager.Scheme(scheme_data)
 print(scheme.creation_dict)
-data_manager = data_manager.DataManager(competition, scheme)
+data_mngr = data_manager.DataManager(competition, scheme)
 try:
     with open(os.path.join("saved_data", competition, "data.json")) as f:
-        data_manager.from_json(json.load(f))
+        data_mngr.from_json(json.load(f))
 except FileNotFoundError:
     print("No saved data found")
-data_manager.update_all()  # ensure that all teams have the correct scheme
+try:
+    with open(os.path.join("saved_data", competition, "images", "data.json")) as f:
+        data_mngr.image_data_from_json(json.load(f))
+except FileNotFoundError:
+    print("No saved image data found")
+data_mngr.update_all()  # ensure that all teams have the correct scheme
 
 
 def calc_a1(user='test'):
@@ -95,6 +104,9 @@ def check_authorization(env, resp) -> str | bool | None:
 
 def application(env, start_response):
     method, path, query = env['REQUEST_METHOD'], env['PATH_INFO'], env['QUERY_STRING']
+    method: str
+    path: str
+    query: str
     try:
         request_body_size = int(env.get('CONTENT_LENGTH', 0))
     except ValueError:
@@ -123,16 +135,93 @@ def application(env, start_response):
                 }).encode()]
             elif path == "/data.json":
                 start_response('200 OK', [('Content-Type', 'application/json')])
-                return [json.dumps(data_manager.to_json(net=True, username=state)).encode()]
+                return [json.dumps(data_mngr.to_json(net=True, username=state)).encode()]
+            elif path.startswith("/image/"):
+                hsh = path.replace("/image/", "")
+                if data_manager.verify_hash(hsh) and hsh in data_mngr.image_data:  # this is to protect from directory traversal
+                    file_path = os.path.join("saved_data", competition, "images", hsh[:2], f"{hsh}.jpg")
+                    if not os.path.exists(file_path):
+                        file_path = os.path.join("saved_data", competition, "fallback.jpg")
+                        if not os.path.exists(file_path):
+                            file_path = "fallback.jpg"
+                    start_response('200 OK', [('Content-Type', 'image/jpg')])
+                    with open(file_path, 'rb') as img_file:
+                        return [img_file.read()]
+                start_response('404 Not Found', [('Content-Type', 'text/plain')])
+                return [b"Bad hash"]
+            elif path == "/image_hashes.txt":
+                start_response('200 OK', [('Content-Type', 'text/plain')])
+                return ["\n".join(data_mngr.image_data.keys()).encode()]
+            elif path.startswith('/image_meta/'):
+                hsh = path.replace("/image_meta/", "")
+                if data_manager.verify_hash(hsh) and hsh in data_mngr.image_data:  # this is to protect from directory traversal
+                    start_response('200 OK', [('Content-Type', 'application/json')])
+                    return [json.dumps(data_mngr.image_data[hsh]).encode()]
+                start_response('404 Not Found', [('Content-Type', 'text/plain')])
+                return [b"404 Not Found"]
         elif method == "POST":
             if path == "/update":
                 request_body = env["wsgi.input"].read(request_body_size)
                 update_json = json.loads(request_body)
-                data_manager.update_from_net(update_json, state)
+                data_mngr.update_from_net(update_json, state)
                 start_response('200 OK', [('Content-Type', 'text/plain')])
                 return [b"updated"]
+            elif path == "/image_upload":
+                print("\n\nBefore reading\n\n")
+                # wsgi.file_wrapper
+                request_body = env["wsgi.input"].read(request_body_size)
+                """fields = {}
+                files = {}
+                def on_field(field):
+                    fields[field.field_name] = field.value
+                def on_file(file):
+                    files[file.field_name] = {'name': file.file_name, 'file_object': file.file_object}
+                multipart.parse_form(
+                    {'Content-Type': env['CONTENT_TYPE'], 'Content-Length': env['CONTENT_LENGTH']},
+                    env['wsgi.input'],
+                    on_field,
+                    on_file
+                )
+                print("\n\nImage upload:")
+                print('fields: ', fields)
+                print('files: ', files)
+                print("\n\n")"""
+                # print(f"Image upload body: {request_body}")
+                decoder = MultipartDecoder(request_body, env["CONTENT_TYPE"])
+                data = {}
+                for part in decoder.parts:
+                    name = re.match(r"form-data; name=\"(\w+)\"", part.headers[b'content-disposition'].decode()).groups()[0]
+                    # print(name, part.content)
+                    data[name] = part.content
+                start_response('200 OK', [('Content-Type', 'text/plain')])
+                try:
+                    tags_ = json.loads(data['tags'].decode())
+                    hsh_ = data['uuid'].decode()
+                    team_ = int(data['team'].decode())
+                    image_ = data['image']
+                    path_ = data_mngr.image_path(hsh_)
+                except: # noqa
+                    return [b"failure"]
+                data_mngr.image_data[hsh_] = {
+                    "author": state,
+                    "tags": tags_,
+                    "team": team_,
+                    "uuid": hsh_,
+                }
+                os.makedirs(os.path.dirname(path_), exist_ok=True)
+                with open(path_, "wb") as f:
+                    f.write(image_)
+                
+                return [b"uploaded"]
         start_response('404 Not Found', [('Content-Type', 'text/html')])
         return [b"404 Not Found"]
+    else:
+        if method == "POST" and path == "/image_upload":
+            print("\n\nOh no, 401 upload\n\n")
+            request_body = env["wsgi.input"].read(request_body_size)
+            print("\n\nRead request input to be safe\n\n")
+        else:
+            print(f"method: {method}, path: {path}")
 
     nonce = base64.b64encode(str(int(time.time())).encode()).decode()
     auth_head = f'Digest realm="{realm}", nonce="{nonce}", algorithm=MD5, qop="auth,auth-int"'
@@ -146,8 +235,24 @@ def application(env, start_response):
 
 def before_exit():
     print("Exit hook executing...")
+    save_data()
+
+
+def save_data():
+    print("Saving data...")
     with open(os.path.join("saved_data", competition, "data.json"), "w") as f:
-        json.dump(data_manager.to_json(), f, indent=2)
+        json.dump(data_mngr.to_json(), f, indent=2)
+    with open(os.path.join("saved_data", competition, "images", "data.json"), "w") as f:
+        json.dump(data_mngr.image_data_to_json(), f, indent=2)
+    print("Saved.")
+
+
+def signal_save_data(signal_id):
+    save_data()
+
+
+uwsgi.register_signal(17, "worker", signal_save_data)
+uwsgi.add_file_monitor(17, "./autosave.txt")
 
 
 atexit.register(before_exit)

@@ -1,3 +1,4 @@
+import os.path
 import typing
 
 
@@ -142,6 +143,8 @@ class CommentsDataValue(DataValue):
 
 _clientSideOnlyTypes: list[str] = [
     "text",
+    "photos"
+    # synchronization is handled separately from the normal stuff, 'photos' is just for the client to display a button
 ]
 _dataValueTypes: dict[str, type[DataValue]] = {
     "text_field": TextDataValue,
@@ -191,11 +194,29 @@ class Scheme:
         return team
 
 
+def _verify_hash(hsh: str):
+    if len(hsh) < 3:
+        raise ValueError("Hash must be at least 3 characters long")
+    for char in hsh:
+        if char not in "0123456789abcdef":
+            raise ValueError("Invalid character in hash")
+
+
+def verify_hash(hsh: str) -> bool:
+    try:
+        _verify_hash(hsh)
+        return True
+    except ValueError:
+        print("Illegal hash was attempted")
+        return False
+
+
 class DataManager:
     def __init__(self, competition: str, scheme: Scheme):
         self.competition = competition
         self.scheme = scheme
         self.teams: dict[int, Team] = {}
+        self.image_data: dict[str, dict[str, typing.Any]] = {}
 
     def update_all(self):
         for team in self.teams.values():
@@ -212,6 +233,23 @@ class DataManager:
             for key, value in team_data.items():
                 team.data[key].from_json(value)
 
+    def image_data_from_json(self, data: dict[str, dict[str, typing.Any]]):
+        self.image_data = data
+        for v in self.image_data.values():
+            if "hash" in v and "uuid" not in v:
+                v["uuid"] = v["hash"]
+                del v["hash"]
+
+    def image_path(self, hsh: str) -> str:
+        _verify_hash(hsh)
+        return os.path.join("saved_data", self.competition, "images", hsh[:2], f"{hsh}.jpg")
+
+    def _verify_image_data(self):
+        for hsh, dat in self.image_data.items():
+            assert hsh == dat['hash']
+            _verify_hash(hsh)
+            assert os.path.exists(self.image_path(hsh))
+
     def to_json(self, net: bool = False, username: str = "") -> dict[str, dict[str, dict]]:
         data = {}
         for number, team in self.teams.items():
@@ -220,6 +258,9 @@ class DataManager:
                 team_data[key] = value.to_json(net, username)
             data[str(number)] = team_data
         return data
+
+    def image_data_to_json(self) -> dict[str, dict[str, typing.Any]]:
+        return self.image_data
 
     def update_from_net(self, data: dict[str, dict[str, dict]], username: str):
         for number, team_data in data.items():
