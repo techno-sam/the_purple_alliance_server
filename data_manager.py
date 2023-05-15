@@ -59,34 +59,53 @@ class DropdownDataValue(DataValue):
         self.options: list[str] = init_dict["options"]
         assert type(self.options) == list
         self.value: str = init_dict.get("default", self.options[0])
-        if self.value not in self.options:
-            self.value = self.options[0]
         self.default = self.value
+#        print("Init dict: ", init_dict)
+        self.can_have_other = init_dict.get("other", False)
+        self.other_value = ""
+        if not (self.value in self.options or (self.value == "Other" and self.can_have_other)):
+            self.value = self.options[0]
 
     def from_json(self, data: dict):
         super().from_json(data)
+#        print("\n\n=================>>> Loading dropdown: ", data, "\n\n\n")
         self.value = data["value"]
-        if self.value not in self.options:
+        self.other_value = data.get("other_value", "")
+        if not (self.value in self.options or (self.value == "Other" and self.can_have_other)):
             self.value = self.default
 
     def to_json(self, net: bool = False, username: str = "") -> dict:
         data = super().to_json(net)
-        data["value"] = self.value
+        if net:
+            data["value"] = {
+                "value": self.value,
+                "other": self.can_have_other,
+                "other_value": self.other_value
+            }
+        else:
+            data["value"] = self.value
+            data["other"] = self.can_have_other
+            data["other_value"] = self.other_value
         return data
 
     def reset(self):
         super().reset()
         self.value = self.default
 
-    def _update_from(self, data: str, username: str):
-        if data in self.options:
-            self.value = data
+    def _update_from(self, data: dict[str, str], username: str):
+#        print(f"\n\nUpdating from: {data}, can have other: {self.can_have_other}\n\n")
+        value = data['value']
+        if value in self.options or (value == "Other" and self.can_have_other):
+            self.value = value
+        if self.can_have_other:
+            self.other_value = data.get('other_value', self.other_value)
 
 
 class StarRatingDataValue(DataValue):
     def __init__(self, init_dict: dict[str, typing.Any]):
         super().__init__(init_dict)
         self.values: dict[str, float] = {}
+        self.single_value = init_dict.get("single", False)
 
     average = property(lambda self: sum(self.values.values()) / len(self.values) if self.values else None)
 
@@ -98,11 +117,13 @@ class StarRatingDataValue(DataValue):
         data = super().to_json(net)
         if net:
             data["value"] = {
-                "personal_value": self.values.get(username, None),
-                "average_value": self.average
+                "personal_value": self.values.get("single" if self.single_value else username, None),
+                "average_value": self.average,
+                "single": self.single_value
             }
         else:
             data["values"] = self.values
+            data["single"] = self.single_value
         return data
 
     def reset(self):
@@ -110,7 +131,7 @@ class StarRatingDataValue(DataValue):
         self.values = {}
 
     def _update_from(self, data: dict[str, float], username: str):
-        self.values[username] = max(0.0, min(data['personal_value'], 5.0))
+        self.values["single" if self.single_value else username] = max(0.0, min(data['personal_value'], 5.0))
 
 
 class CommentsDataValue(DataValue):

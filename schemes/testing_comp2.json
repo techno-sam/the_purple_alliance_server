@@ -1,0 +1,176 @@
+[
+  {
+    "type": "text_field",
+    "label": "Team name",
+    "key": "name"
+  },
+
+
+  {
+    "type": "text",
+    "label": "Robot Construction",
+    "padding": 50,
+    "style": "heading"
+  },
+  {
+    "type": "dropdown",
+    "label": "Drive Train",
+    "key": "drivetrain",
+    "options": [
+      "Unknown",
+      "Swerve",
+      "Tank"
+    ],
+    "default": "Unknown",
+    "other": true
+  },
+  {
+    "type": "text_field",
+    "label": "Motors (type and quantity)",
+    "key": "motors"
+  },
+  {
+    "type": "text_field",
+    "label": "Pneumatics & airtanks (type and quantity)",
+    "key": "pneumatics"
+  },
+  {
+    "type": "text_field",
+    "label": "Strongest part of the robot",
+    "key": "strongest_part"
+  },
+
+
+  {
+    "type": "text",
+    "label": "Team info",
+    "padding": 50,
+    "style": "heading"
+  },
+  {
+    "type": "star_rating",
+    "__comment": "TODO make a single choice star rating (non-averaging)",
+    "label": "Driver experience",
+    "key": "driver_experience",
+    "single": true
+  },
+  {
+    "type": "text_field",
+    "label": "Best sponsors (dont ask them, just look on hoodies, robot, and pit area)",
+    "key": "sponsors"
+  },
+  {
+    "type": "dropdown",
+    "label": "What zone can you pick up in?",
+    "key": "pickup_zone",
+    "options": [
+      "Unknown",
+      "Single Substation",
+      "Double Substation",
+      "Both"
+    ],
+    "default": "Unknown"
+  },
+
+
+  {
+    "type": "text",
+    "label": "Manual",
+    "padding": 50,
+    "style": "heading"
+  },
+  {
+    "type": "dropdown",
+    "label": "Game pieces they can pick up",
+    "key": "gamepiece",
+    "options": [
+      "Unknown",
+      "Both",
+      "Cube",
+      "Cone"
+    ],
+    "default": "Unknown"
+  },
+  {
+    "type": "text_field",
+    "label": "Cycle time (seconds) - drive, grab, and place a game piece",
+    "key": "cycle_time"
+  },
+  {
+    "type": "dropdown",
+    "label": "Can balance on charge station?",
+    "key": "charge_station_drop",
+    "options": [
+      "Unknown",
+      "Yes",
+      "Maybe",
+      "No"
+    ],
+    "default": "Unknown"
+  },
+  {
+    "type": "text_field",
+    "label": "Charge station notes",
+    "key": "charge_station_notes"
+  },
+
+
+  {
+    "type": "text",
+    "label": "Autonomous",
+    "padding": 50,
+    "style": "heading"
+  },
+  {
+    "type": "text_field",
+    "label": "How many cones and cubes do they place?",
+    "key": "auto_cube_cone"
+  },
+  {
+    "type": "dropdown",
+    "label": "Balance on charge station?",
+    "key": "auto_charge_station",
+    "options": [
+      "Unknown",
+      "Yes",
+      "Maybe",
+      "No"
+    ],
+    "default": "Unknown"
+  },
+  {
+    "type": "dropdown",
+    "label": "Is charge station levelling automated (gyro)?",
+    "key": "auto_balance_charge_station",
+    "options": [
+      "Unknown",
+      "Yes",
+      "No"
+    ],
+    "default": "Unknown"
+  },
+  {
+    "type": "dropdown",
+    "label": "Vision tracking",
+    "key": "auto_vision_tracking",
+    "options": [
+      "Unknown",
+      "Yes",
+      "Maybe",
+      "No"
+    ],
+    "default": "Unknown",
+    "other": true
+  },
+  {
+    "type": "comments",
+    "key": "notes",
+    "label": "Other notes",
+    "padding": 50
+  },
+  {
+    "type": "photos",
+    "label": "Photos",
+    "padding": 10
+  }
+]
