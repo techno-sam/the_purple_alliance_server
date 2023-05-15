@@ -5,10 +5,10 @@
       "value": "Element"
     },
     "drivetrain": {
-      "timestamp": 1684161098487,
-      "value": "Tank",
+      "timestamp": 1684165261231,
+      "value": "Swerve",
       "other": true,
-      "other_value": "some awesome response"
+      "other_value": "some awesome responsetest"
     },
     "motors": {
       "timestamp": 1684161132826,
@@ -199,7 +199,7 @@
       "value": "far reach"
     },
     "driver_experience": {
-      "timestamp": 1684162253875,
+      "timestamp": 1684162477523,
       "values": {
         "Sam Wagenaar": 5.0,
         "single": 5.0
