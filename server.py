@@ -251,8 +251,9 @@ def signal_save_data(signal_id):
     save_data()
 
 
-uwsgi.register_signal(17, "worker", signal_save_data)
-uwsgi.add_file_monitor(17, "./autosave.txt")
+uwsgi.register_signal(17, "worker", signal_save_data) # register signal 17 handler
+uwsgi.add_file_monitor(17, "./autosave.txt") # send signal 17 on file change
+uwsgi.add_timer(17, 60) # send signal 17 every minute
 
 
 atexit.register(before_exit)
