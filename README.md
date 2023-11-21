@@ -29,9 +29,9 @@ cd the_purple_alliance_server
 ```shell
 python3 -m pip install -r requirements.txt
 ```
-4. Copy the example config file and edit it to your liking
+4. Copy the example config file and edit it to your liking (make sure you set up Blue Alliance API keys)
 5. Copy the testing scheme file and edit it to your liking
 6. Run the server
 ```shell
-uwsgi --ini server.ini
+./server.sh
 ```
