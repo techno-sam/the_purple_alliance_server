@@ -6,7 +6,6 @@ import atexit
 import base64
 import os
 import sys
-import re
 import time
 import json
 import _md5 as md5
@@ -251,9 +250,9 @@ def signal_save_data(signal_id):
     save_data()
 
 
-uwsgi.register_signal(17, "worker", signal_save_data) # register signal 17 handler
-uwsgi.add_file_monitor(17, "./autosave.txt") # send signal 17 on file change
-uwsgi.add_timer(17, 60) # send signal 17 every minute
+uwsgi.register_signal(17, "worker", signal_save_data)  # register signal 17 handler
+uwsgi.add_file_monitor(17, "./autosave.txt")  # send signal 17 on file change
+uwsgi.add_timer(17, 60)  # send signal 17 every minute
 
 
 atexit.register(before_exit)

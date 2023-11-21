@@ -2,5 +2,6 @@
   "password": "test",
   "team": 1661,
   "competition": "testing_comp4",
-  "tba_api_key": "<NONE>"
+  "tba_api_key": "<NONE>",
+  "tba_webhook_secret": "<NONE>"
 }

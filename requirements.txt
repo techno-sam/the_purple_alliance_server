@@ -1,0 +1,2 @@
+requests-toolbelt==1.0.0
+tba-api-v3client==3.8.0
