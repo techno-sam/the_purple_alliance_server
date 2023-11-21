@@ -1,18 +1,18 @@
 [uwsgi]
-socket = 0.0.0.0:8080
-https = :8080,foobar.crt,foobar.key,HIGH
-uid=sam
-gid=sam
+; socket = 0.0.0.0:8080
+https = 0.0.0:8080,foobar.crt,foobar.key,HIGH
+uid=tpa
+gid=tpa
 
 enable-threads = true
 
-chdir = /home/sam/PycharmProjects/the_purple_alliance_server
+chdir = /home/tpa/the_purple_alliance_server
 mount = /=./server.py
-mount = /match_data=./match_data_server.py
+; mount = /match_data=./match_data_server.py
 manage-script-name = true
 
 stats = 127.0.0.1:9191
-pidfile = /tmp/the_purple_alliance_server.pid
+pidfile = ./the_purple_alliance_server.pid
 
 ; If VIRTUAL_ENV is set then use its value to specify the virtualenv directory
 if-env = VIRTUAL_ENV
