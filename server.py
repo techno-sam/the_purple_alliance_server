@@ -284,7 +284,7 @@ def application(env, start_response):
                 return [b'Asking a human to verify...']
             elif request_body_json["message_type"] == "ping":
                 data: dict[str, str] = request_body_json["message_data"]
-                print(f"Got a ping with title: {data['title']} and desc: {data['description']}")
+                print(f"Got a ping with title: {data['title']} and desc: {data['desc']}")
             elif request_body_json["message_type"] == "match_score":
                 data: dict[str, ...] = request_body_json["message_data"]
                 match_data: dict[str, ...] = data["match"]
