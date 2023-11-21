@@ -31,7 +31,9 @@ python3 -m pip install -r requirements.txt
 ```
 4. Copy the example config file and edit it to your liking (make sure you set up Blue Alliance API keys)
 5. Copy the testing scheme file and edit it to your liking
-6. Run the server
+6. Edit `server.ini` to point to its containing directory and to use the proper `uid` and `gid`
+<br>(eg. `/home/username/the_purple_alliance_server`)
+7. Run the server
 ```shell
 ./server.sh
 ```

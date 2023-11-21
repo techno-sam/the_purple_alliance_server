@@ -8,18 +8,16 @@ import os
 import sys
 import time
 import json
-import _md5 as md5
 import wsgiref.headers
 import data_manager
 import re
+import hashlib
 
 print("startup")
 
 
 def md5sum(data: str):
-    m = md5.md5()
-    m.update(data.encode())
-    return m.hexdigest()
+    return hashlib.md5(data.encode()).hexdigest()
 
 
 with open("config.json") as f:
