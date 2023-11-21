@@ -8,7 +8,6 @@ enable-threads = true
 
 chdir = /home/tpa/the_purple_alliance_server
 mount = /=./server.py
-; mount = /match_data=./match_data_server.py
 manage-script-name = true
 
 stats = 127.0.0.1:9191
