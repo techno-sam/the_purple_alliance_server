@@ -3,5 +3,6 @@
   "team": 1661,
   "competition": "testing_comp4",
   "tba_api_key": "<NONE>",
+  "event_key": "2023caph",
   "tba_webhook_secret": "<NONE>"
 }
