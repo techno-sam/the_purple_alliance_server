@@ -8,3 +8,4 @@
 /server.ini
 the_purple_alliance_server.pid
 __pycache__/
+*.log
