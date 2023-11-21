@@ -242,6 +242,10 @@ def application(env, start_response):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         return [b"online"]
     if path.startswith("/match_data"):
+        print("Match data request received")
+        print(f"\t`{method=}`")
+        print(f"\t`{path=}`")
+        print(f"\t`{query=}`")
         path = path.removeprefix("/match_data")
         if path == "/score_summary.txt":
             with open("score_summary.txt") as score_summary:
