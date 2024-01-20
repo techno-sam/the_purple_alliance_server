@@ -172,5 +172,10 @@
     "type": "photos",
     "label": "Photos",
     "padding": 10
+  },
+  {
+    "type": "win_loss",
+    "key": "win_loss",
+    "padding": 10
   }
 ]

@@ -11,7 +11,7 @@ class DataValue:
         """Should only be used for loading from disk, updating from client should call update_from"""
         self.last_updated = data.get("timestamp", -1)
 
-    def to_json(self, net: bool = False, username: str = "") -> dict:
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
         """Can be used for saving to disk and sending to client"""
         return {"timestamp": self.last_updated}
 
@@ -40,7 +40,7 @@ class TextDataValue(DataValue):
         print("Loading text from json: ", data)
         self.value = data["value"]
 
-    def to_json(self, net: bool = False, username: str = "") -> dict:
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
         data = super().to_json(net)
         data["value"] = self.value
         return data
@@ -74,7 +74,7 @@ class DropdownDataValue(DataValue):
         if not (self.value in self.options or (self.value == "Other" and self.can_have_other)):
             self.value = self.default
 
-    def to_json(self, net: bool = False, username: str = "") -> dict:
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
         data = super().to_json(net)
         if net:
             data["value"] = {
@@ -113,7 +113,7 @@ class StarRatingDataValue(DataValue):
         super().from_json(data)
         self.values = data["values"]
 
-    def to_json(self, net: bool = False, username: str = "") -> dict:
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
         data = super().to_json(net)
         if net:
             data["value"] = {
@@ -143,7 +143,7 @@ class CommentsDataValue(DataValue):
         super().from_json(data)
         self.comments = data["comments"]
 
-    def to_json(self, net: bool = False, username: str = "") -> dict:
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
         data = super().to_json(net)
         if net:
             data["value"] = {
@@ -162,6 +162,29 @@ class CommentsDataValue(DataValue):
         self.comments[username] = data['personal_comment']
 
 
+class WinLossDataValue(DataValue):
+    def __init__(self, init_dict: dict[str, typing.Any]):
+        super().__init__(init_dict)
+
+    def to_json(self, net: bool = False, username: str = "", team: typing.Optional["Team"] = None) -> dict:
+        data = super().to_json(net)
+        if net:
+            print("Sending win loss data")
+            print("Team: ", team)
+            data["value"] = {
+                "wins": 0 if team is None else team.wins,
+                "losses": 0 if team is None else team.losses,
+                "ties": 0 if team is None else team.ties
+            }
+        return data
+
+    def reset(self):
+        super().reset()
+
+    def _update_from(self, data: str, username: str):
+        pass
+
+
 _clientSideOnlyTypes: list[str] = [
     "text",
     "photos"
@@ -171,7 +194,8 @@ _dataValueTypes: dict[str, type[DataValue]] = {
     "text_field": TextDataValue,
     "dropdown": DropdownDataValue,
     "star_rating": StarRatingDataValue,
-    "comments": CommentsDataValue
+    "comments": CommentsDataValue,
+    "win_loss": WinLossDataValue
 }
 
 
@@ -179,6 +203,12 @@ class Team:
     def __init__(self, number: int):
         self.number = number
         self.data: dict[str, DataValue] = {}
+        self.wins: int = 0
+        self.losses: int = 0
+        self.ties: int = 0
+
+    def __repr__(self) -> str:
+        return f"Team({self.number}) [wlt: {self.wins}/{self.losses}/{self.ties}]"
 
 
 class Scheme:
@@ -243,8 +273,10 @@ class DataManager:
         for team in self.teams.values():
             self.scheme.update_team(team)
 
-    def get_team(self, number: int) -> Team:
+    def get_team(self, number: int, create: bool = True) -> Team | None:
         if number not in self.teams:
+            if not create:
+                return None
             self.teams[number] = self.scheme.create_team(number)
         return self.teams[number]
 
@@ -272,11 +304,23 @@ class DataManager:
             assert os.path.exists(self.image_path(hsh))
 
     def to_json(self, net: bool = False, username: str = "") -> dict[str, dict[str, dict]]:
+        scores: dict[int, tuple[int, int, int]] = {}
+        if net:
+            with open("score_summary.txt") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    number, wlt = line.split(": ")
+                    wins, losses, ties = wlt.split("-")
+                    scores[int(number.replace("frc", ""))] = (int(wins), int(losses), int(ties))
         data = {}
         for number, team in self.teams.items():
+            if net:
+                team.wins, team.losses, team.ties = scores.get(number, (0, 0, 0))
             team_data = {}
             for key, value in team.data.items():
-                team_data[key] = value.to_json(net, username)
+                team_data[key] = value.to_json(net=net, username=username, team=team)
             data[str(number)] = team_data
         return data
 
@@ -288,3 +332,13 @@ class DataManager:
             team = self.get_team(int(number))
             for key, value in team_data.items():
                 team.data[key].update_from(value, username)
+
+    """def set_team_score(self, team_key: int, wins: int, losses: int, ties: int):
+        print("Setting team score, key: ", team_key)
+        team = self.get_team(team_key, create=False)
+        if team is None:
+            return
+        print("Actually setting, wlt: ", wins, losses, ties)
+        team.wins = wins
+        team.losses = losses
+        team.ties = ties"""
